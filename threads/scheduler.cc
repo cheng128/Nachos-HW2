@@ -96,9 +96,7 @@ void Scheduler::ReadyToRun(Thread *thread)
     thread->setStatus(READY);
 
     if (thread->getPriority() >= 100 && thread->getPriority() < 150)
-    {
-	if (kernel->currentThread->getPriority()<100 || kernel->currentThread->getRemainingBurstTime() > thread->getRemainingBurstTime())
-	    kernel->interrupt->YieldOnReturn();
+    {	
         if (!L1ReadyQueue->IsInList(thread))
         {
             L1ReadyQueue->Insert(thread);
@@ -211,9 +209,11 @@ void Scheduler::Run(Thread *nextThread, bool finishing)
     // in switch.s.  You may have to think
     // a bit to figure out what happens after this, both from the point
     // of view of the thread and from the perspective of the "outside world".
-
-    cout << "Switching from: " << oldThread->getID() << " to: " << nextThread->getID() << endl;
-    SWITCH(oldThread, nextThread);
+	if (oldThread != nextThread){
+		cout << "Switching from: " << oldThread->getID() << " to: " << nextThread->getID() << endl;
+    	SWITCH(oldThread, nextThread);
+	}
+    
 
     // we're back, running oldThread
 

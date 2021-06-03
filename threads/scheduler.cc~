@@ -96,9 +96,7 @@ void Scheduler::ReadyToRun(Thread *thread)
     thread->setStatus(READY);
 
     if (thread->getPriority() >= 100 && thread->getPriority() < 150)
-    {
-	if (kernel->currentThread->getPriority()<100 || kernel->currentThread->getRemainingBurstTime() > thread->getRemainingBurstTime())
-	    kernel->interrupt->YieldOnReturn();
+    {	
         if (!L1ReadyQueue->IsInList(thread))
         {
             L1ReadyQueue->Insert(thread);
@@ -285,7 +283,7 @@ void Scheduler::UpdatePriority()
             if (new_priority > 149)
                 new_priority = 149;
             iter1->Item()->setPriority(new_priority);
-            DEBUG('z', "[UpdatePriority]Tick[" << kernel->stats->totalTicks << "]Thread[" << iter1->Item()->getID() << "]changes its priority from[" << old_priority << "]to[" << new_priority << "]");
+            DEBUG('z', "[UpdatePriority] Tick [" << kernel->stats->totalTicks << "] Thread [" << iter1->Item()->getID() << "] changes its priority from[" << old_priority << "] to [" << new_priority << "]");
             iter1->Item()->setWaitTime(0);
         }
     }
@@ -301,7 +299,7 @@ void Scheduler::UpdatePriority()
                 new_priority = 149;
             iter2->Item()->setPriority(new_priority);
             iter2->Item()->setWaitTime(0);
-            DEBUG('z', "[UpdatePriority]Tick[" << kernel->stats->totalTicks << "] Thread [" << iter2->Item()->getID() << "] changes its priority from[" << old_priority << "] to [" << new_priority << "]");
+            DEBUG('z', "[UpdatePriority] Tick [" << kernel->stats->totalTicks << "] Thread [" << iter2->Item()->getID() << "] changes its priority from[" << old_priority << "] to [" << new_priority << "]");
             L2ReadyQueue->Remove(iter2->Item());
             ReadyToRun(iter2->Item());
         }

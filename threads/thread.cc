@@ -220,7 +220,7 @@ void Thread::Yield()
     nextThread = kernel->scheduler->FindNextToRun();
     if (nextThread)
     {
-		if (nextThread != kernel->currentThread)
+		if (nextThread != this)
 		{	
 			int old_RemainingBT = this->getRemainingBurstTime();
 			int new_RemainingBT = old_RemainingBT - this->getRunTime();
@@ -265,22 +265,25 @@ void Thread::Sleep(bool finishing)
     status = BLOCKED;
     while ((nextThread = kernel->scheduler->FindNextToRun()) == NULL)
         kernel->interrupt->Idle(); // no one to run, wait for an interruptd
-    int old_RemainingBT = this->getRemainingBurstTime();
-    int new_RemainingBT = old_RemainingBT - this->getRunTime();
-    if (new_RemainingBT<0)
-	new_RemainingBT = 0;
-
-    DEBUG('z', "[UpdateRemainingBurstTime] Tick [" << kernel->stats->totalTicks << "] Thread [" << this->getID() << "] update remaining burst time, from: [" << old_RemainingBT << "] to [" << new_RemainingBT << "]");
-    this->setRemainingBurstTime(new_RemainingBT);
-    this->setRunTime(0);
-    this->setStatus(status);
+   
     //<TODO>
     // In Thread::Sleep(finishing), we put the current_thread to waiting or terminated state (depend on finishing)
     // , and determine finishing on Scheduler::Run(nextThread, finishing), not here.
     // 1. Update RemainingBurstTime
     // 2. Reset some value of current_thread, then context switch
-	DEBUG('z', "[ContextSwitch] Tick ["<<kernel->stats->totalTicks <<"]:  Thread [" << nextThread->getID() << "] is now selected for execution, thread [" << this->getID()<<"] is replaced, and it has executed ["<<this->getRunTime() <<"] ticks.")
-    kernel->scheduler->Run(nextThread, finishing);
+	if (this != nextThread)
+	{
+		 int old_RemainingBT = this->getRemainingBurstTime();
+    	int new_RemainingBT = old_RemainingBT - this->getRunTime();
+    	if (new_RemainingBT<0)
+			new_RemainingBT = 0;
+    	DEBUG('z', "[UpdateRemainingBurstTime] Tick [" << kernel->stats->totalTicks << "] Thread [" << this->getID() << "] update remaining burst time, from: [" << old_RemainingBT << "] to [" << new_RemainingBT << "]");
+    	this->setRemainingBurstTime(new_RemainingBT);
+    	this->setRunTime(0);
+    	this->setStatus(status);
+		DEBUG('z', "[ContextSwitch] Tick ["<<kernel->stats->totalTicks <<"]:  Thread [" << nextThread->getID() << "] is now selected for execution, thread [" << this->getID()<<"] is replaced, and it has executed ["<<this->getRunTime() <<"] ticks.")
+    	kernel->scheduler->Run(nextThread, finishing);
+	}
     //<TODO>
 }
 
