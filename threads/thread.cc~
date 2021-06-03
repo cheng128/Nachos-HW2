@@ -227,6 +227,7 @@ void Thread::Yield()
 			this->setRemainingBurstTime(new_RemainingBT);
 			DEBUG('z', "[UpdateRemainingBurstTime] Tick [" << kernel->stats->totalTicks << "] Thread [" << this->getID() << "] update remaining burst time, from: [" << old_RemainingBT << "] to [" << new_RemainingBT << "]");
 			this->setRunTime(0);
+			DEBUG('z', "[ContextSwitch] Tick ["<<kernel->stats->totalTicks <<"]:  Thread [" << nextThread->getID() << "] is now selected for execution, thread [" << this->getID()<<"] is replaced, and it has executed ["<<this->getRunTime() <<"] ticks.")
             kernel->scheduler->Run(nextThread, FALSE);
 		}
     }

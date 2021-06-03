@@ -218,18 +218,15 @@ void Thread::Yield()
     //<TODO>
     kernel->scheduler->ReadyToRun(this);
     nextThread = kernel->scheduler->FindNextToRun();
-    if (nextThread)
+    if (nextThread && nextThread != this)
     {
-		if (nextThread != this)
-		{	
-			int old_RemainingBT = this->getRemainingBurstTime();
-			int new_RemainingBT = old_RemainingBT - this->getRunTime();
-			this->setRemainingBurstTime(new_RemainingBT);
-			DEBUG('z', "[UpdateRemainingBurstTime] Tick [" << kernel->stats->totalTicks << "] Thread [" << this->getID() << "] update remaining burst time, from: [" << old_RemainingBT << "] to [" << new_RemainingBT << "]");
-			this->setRunTime(0);
+		int old_RemainingBT = this->getRemainingBurstTime();
+		int new_RemainingBT = old_RemainingBT - this->getRunTime();
+		this->setRemainingBurstTime(new_RemainingBT);
+		DEBUG('z', "[UpdateRemainingBurstTime] Tick [" << kernel->stats->totalTicks << "] Thread [" << this->getID() << "] update remaining burst time, from: [" << old_RemainingBT << "] to [" << new_RemainingBT << "]");
+		this->setRunTime(0);
 			DEBUG('z', "[ContextSwitch] Tick ["<<kernel->stats->totalTicks <<"]:  Thread [" << nextThread->getID() << "] is now selected for execution, thread [" << this->getID()<<"] is replaced, and it has executed ["<<this->getRunTime() <<"] ticks.")
-            kernel->scheduler->Run(nextThread, FALSE);
-		}
+        kernel->scheduler->Run(nextThread, FALSE);
     }
     (void)kernel->interrupt->SetLevel(oldLevel);
 }
