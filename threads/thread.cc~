@@ -220,7 +220,7 @@ void Thread::Yield()
     nextThread = kernel->scheduler->FindNextToRun();
     if (nextThread)
     {
-		if (nextThread != kernel->currentThread)
+		if (nextThread != this)
 		{	
 			int old_RemainingBT = this->getRemainingBurstTime();
 			int new_RemainingBT = old_RemainingBT - this->getRunTime();
